@@ -2,12 +2,14 @@ const { request, response } = require("express")
 
 const express = require("express")
 const morgan = require("morgan")
+const cors = require("cors")
 const app = express()
 
 morgan.token("content", (req => JSON.stringify(req.body)))
 
 app.use(express.json())
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :content' ))
+app.use(cors())
 
 const persons = [
 { name: 'Arto Hellas', number: '040-123456', id:1 },
@@ -41,9 +43,10 @@ app.post("/api/persons",(request, response)=>{
     if(isalreadyinlist(body.name)){
         return response.status(400).json({"error": "given name must be unique"})
     }
-    else if (!body.name || !body.number){
+    else if (body.name === "" || body.number === ""){
        return response.status(400).json({ "error": "Invalid parameters. Request must contain json with name(str) and number(str)"})
         }
+
     const newperson = {
         name : body.name,
         number: body.number,
@@ -71,6 +74,6 @@ app.get("/info",(request, response)=>{
 
 
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT)
 console.log(`Server started succesfully on port ${PORT}`)
