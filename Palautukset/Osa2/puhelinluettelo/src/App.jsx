@@ -31,11 +31,12 @@ const App = () => {
       contactService.postNewContact(newPerson)
       .then(returnedPerson=>{
         setPersons(persons.concat(returnedPerson))
+
+        setMessage([`new contact for ${newPerson.name} succesfully added to contactlist`,0])
+        setTimeout(()=>{
+          setMessage([null,null])
+        }, 3000)
       })
-      setMessage([`new contact for ${newPerson.name} succesfully added to contactlist`,0])
-      setTimeout(()=>{
-        setMessage([null,null])
-      }, 3000)
     }
     else if(existingPerson.number !== phoneNumber){
         const replaceOldNumber = window.confirm(`Contact for ${newName} is already added to phonebook, do you want to replace the old number with new one?`)
