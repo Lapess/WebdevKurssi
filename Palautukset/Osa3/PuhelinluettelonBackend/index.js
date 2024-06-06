@@ -5,6 +5,7 @@ const cors = require("cors")
 const app = express()
 
 const Person = require("./models/person")
+const person = require('./models/person')
 
 morgan.token("content", (req => JSON.stringify(req.body)))
 
@@ -15,31 +16,36 @@ app.use(express.static("dist"))
 
 
 
-app.get("/api/persons", (request, response)=>{
+app.get("/api/persons", (request, response, next)=>{
     Person.find({}).then( persons =>{
-        console.log(persons, "hit")
         response.json(persons)
     })
-
+    .catch(error => next(error))
 })
 
 app.get("/api/persons/:id", (request, response)=>{
-    const id = Number(request.params.id)
-    const person = persons.find(person => person.id === id)
-    if (person){
+
+    const id = request.params.id
+    Person.findById(id)
+    .then(person =>{
         response.json(person)
-    }
-    else {
+
+    if (person === undefined || person === null){
         response.status(404).end()
     }
+    })
+    .catch(error => next(error))
 })
 
-app.delete("/api/persons/:id", (request,response)=>{
-
-    response.status(204).end()
+app.delete("/api/persons/:id", (request,response, next)=>{
+    Person.findByIdAndDelete(request.params.id)
+    .then(result =>{
+        response.status(204).end()
+    })
+    .catch(error => next(error))
   })
 
-app.post("/api/persons",(request, response)=>{
+app.post("/api/persons",(request, response, next)=>{
     const body = request.body
 
     if (body.name === "" || body.number === ""){
@@ -53,16 +59,43 @@ app.post("/api/persons",(request, response)=>{
         person.save().then(savedperson =>{
             response.json(savedperson)
         })
+    
+    .catch(error => next(error))
 })
 
-app.get("/info",(request, response)=>{
-    response.send(`<div>Phonebook has info for ${persons.length} people</div>
-    <div>
-    ${new Date().toString()}
-    </div>`)
+app.put('/api/persons/:id', (request, response, next) => {
+    const body = request.body
+  
+    const person = {
+      name: body.name,
+      number: body.number,
+    }
+  
+    Person.findByIdAndUpdate(request.params.id, person, { new: true })
+      .then(updatedPerson => {
+        response.json(updatedPerson)
+      })
+      .catch(error => next(error))
+  })
+
+app.get("/info",(request, response, next)=>{
+    Person.find({})
+    .then(persons =>{
+        response.send(`<div>Phonebook has info for ${persons.length} people</div>
+        <div>
+        ${new Date().toString()}
+        </div>`)
+    })
+    .catch(error => next(error))
 })
 
+const errorHandler = (error, request, response, next)=>{
+console.log(error.message)
 
+next(error)
+}
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT)
