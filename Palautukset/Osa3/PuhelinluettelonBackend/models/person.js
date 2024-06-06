@@ -1,5 +1,4 @@
 const mongoose = require("mongoose")
-const { validate } = require("../../../../KurssinSeuranta/part3/models/note")
 
 mongoose.set("strictQuery", false)
 
