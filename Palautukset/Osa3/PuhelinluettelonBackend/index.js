@@ -64,14 +64,13 @@ app.post("/api/persons",(request, response, next)=>{
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
-    const body = request.body
+    const {name, number} = request.body
   
-    const person = {
-      name: body.name,
-      number: body.number,
-    }
-  
-    Person.findByIdAndUpdate(request.params.id, person, { new: true })
+    Person.findByIdAndUpdate(
+        request.params.id,
+        {name, number},
+        //performs validation for update method parameters. Currently not needed, might be handy in future?
+        {new: true, runValidators: true, context: "query"})
       .then(updatedPerson => {
         response.json(updatedPerson)
       })
@@ -91,6 +90,10 @@ app.get("/info",(request, response, next)=>{
 
 const errorHandler = (error, request, response, next)=>{
 console.log(error.message)
+
+if (error.name === "ValidationError"){
+    response.status(400).json({error: error.message})
+}
 
 next(error)
 }

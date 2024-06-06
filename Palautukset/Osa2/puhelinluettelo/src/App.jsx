@@ -37,6 +37,13 @@ const App = () => {
           setMessage([null,null])
         }, 3000)
       })
+      .catch(error =>{
+        console.log(error.response.data)
+        setMessage([error.response.data.error,1])
+        setTimeout(()=>{
+          setMessage([null,null])
+        }, 3000)
+      })
     }
     else if(existingPerson.number !== phoneNumber){
         const replaceOldNumber = window.confirm(`Contact for ${newName} is already added to phonebook, do you want to replace the old number with new one?`)
@@ -48,7 +55,7 @@ const App = () => {
             setPersons(persons.map(person => person.id === updatedContact.id ? returnedPerson : person))
           })
           .catch(error=>{
-            setMessage([`contact that you've tried to modify has already been deleted from the server`,1])
+            setMessage([error.message,1])
             setTimeout(()=>{
               setMessage([null,null])
             }, 3000)
