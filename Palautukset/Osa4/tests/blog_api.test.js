@@ -99,12 +99,36 @@ test("blog deletion successful with code 204", async () => {
   const allBlogs = await api.get("/api/blogs");
   const blogToDelete = allBlogs.body[allBlogs.body.length - 1];
 
-  console.log(blogToDelete.id, "hit!!!!!! this is blog to delete data");
-
   await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204);
 
   const newBlogs = await api.get("/api/blogs");
   assert.strictEqual(newBlogs.body.length, allBlogs.body.length - 1);
+});
+
+test("blog update all values changed", async () => {
+  const blog = await api.post("/api/blogs").send({
+    title: "addTest",
+    author: "testPerson",
+    url: "someSOMEsomeSOME.com",
+    likes: 0,
+  });
+  const updatedBlog = {
+    title: "updated",
+    author: "updated2",
+    url: "updated3",
+    likes: 1,
+  };
+
+  const response = await api
+    .put(`/api/blogs/${blog.body.id}`)
+    .send(updatedBlog)
+    .expect(200);
+  const newblogObject = response.body;
+
+  assert.deepStrictEqual(blog.body.id, newblogObject.id);
+  assert.deepStrictEqual(newblogObject.title, "updated");
+  assert.deepStrictEqual(newblogObject.author, "updated2");
+  assert.deepStrictEqual(newblogObject.url, "updated3");
 });
 
 after(async () => {
