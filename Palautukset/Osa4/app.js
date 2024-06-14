@@ -10,14 +10,16 @@ const middleware = require("./utils/middleware");
 
 const app = express();
 
+mongoose.set("strictQuery", false);
+
 logger.info("connecting to mongodb.....");
 const mongoUrl = config.MONGODB_URI;
 mongoose.connect(mongoUrl).then((res) => {
   logger.info("connection to mongodb established succesfully");
 });
 
-app.use(cors());
 app.use(express.json());
+app.use(cors());
 app.use("/api/blogs", blogsRouter);
 app.use("/api/users", usersRouter);
 
